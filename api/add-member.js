@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   try {
-const response = await fetch(`https://a.klaviyo.com/api/v1-2/lists/QZE9kG/members`, {
+const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/lists/${process.env.KLAVIYO_LIST_ID}/relationships/subscribers/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
