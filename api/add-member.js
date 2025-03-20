@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
   try {
     const apiKey = process.env.KLAVIYO_PRIVATE_API_KEY;
     // Use the legacy v2 subscribe endpoint and send API key as a query parameter.
-    const response = await fetch(`https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_LIST_ID}/subscribe?api_key=${apiKey}`, {
+    const response = await fetch(`https://a.klaviyo.com/api/v2/lists/${process.env.KLAVIYO_LIST_ID}/subscribe?api_key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
