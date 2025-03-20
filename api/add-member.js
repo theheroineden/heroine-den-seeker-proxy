@@ -24,8 +24,9 @@ module.exports = async function handler(req, res) {
     const seekersListId = process.env.KLAVIYO_LIST_ID;
     const masterListId = process.env.KLAVIYO_MASTER_LIST_ID;
 
-    // STEP 1: Create profile or get existing profile ID
+    // STEP 1: Create the profile or get profile ID
     let profileId = null;
+
     const profileResponse = await fetch('https://a.klaviyo.com/api/profiles/', {
       method: 'POST',
       headers: {
@@ -37,12 +38,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         data: {
           type: 'profile',
-          attributes: {
-            email,
-            subscriptions: {
-              email: { marketing: 'subscribed' }
-            }
-          }
+          attributes: { email }
         }
       })
     });
@@ -105,14 +101,14 @@ module.exports = async function handler(req, res) {
     );
 
     if (!masterListResponse.ok) {
-      const listError = await masterListResponse.text();
-      console.error('Klaviyo Add-to-Master-List error:', listError);
+      const masterListError = await masterListResponse.text();
+      console.error('Klaviyo Add-to-Master-List error:', masterListError);
       throw new Error('Failed to add profile to master list in Klaviyo');
     }
 
     res.status(200).json({
       success: true,
-      message: 'Email added, subscribed, and added to both lists!'
+      message: 'Email added and added to both lists successfully!'
     });
   } catch (error) {
     console.error('Klaviyo API Error:', error);
