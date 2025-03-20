@@ -8,46 +8,38 @@ module.exports = async function handler(req, res) {
     res.status(200).end();
     return;
   }
-
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
+  
   const { email } = req.body;
-
+  
   if (!email || !email.includes('@')) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
-
+  
   try {
-    const response = await fetch(
-      `https://a.klaviyo.com/api/v2023-02-22/lists/${process.env.KLAVIYO_LIST_ID}/subscribe`,
-      {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'revision': '2023-02-22',
-          'content-type': 'application/json',
-          Authorization: `Klaviyo-API-Key ${process.env.KLAVIYO_PRIVATE_API_KEY}`
-        },
-        body: JSON.stringify({
-          data: {
-            type: 'list_subscription',
-            attributes: { email }
-          }
-        })
-      }
-    );
-
+    // Use the v2 subscribe endpoint; pass API key as a query parameter
+    const apiKey = process.env.KLAVIYO_PRIVATE_API_KEY;
+    const response = await fetch(`https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_LIST_ID}/subscribe?api_key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ profiles: [{ email }] })
+    });
+  
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Klaviyo API response error:', errorText);
       throw new Error('Failed to add email to Klaviyo');
     }
-
+  
     res.status(200).json({ success: true, message: 'Email added successfully!' });
   } catch (error) {
     console.error('Klaviyo API Error:', error);
     res.status(500).json({ error: error.message || 'Server error. Please try again.' });
   }
 };
+
