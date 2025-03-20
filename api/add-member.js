@@ -20,13 +20,14 @@ module.exports = async function handler(req, res) {
 
   try {
     const apiKey = process.env.KLAVIYO_PRIVATE_API_KEY;
+
     const response = await fetch('https://a.klaviyo.com/api/profiles/', {
       method: 'POST',
       headers: {
         'accept': 'application/json',
         'revision': '2023-02-22',
         'content-type': 'application/json',
-        Authorization: `Klaviyo-API-Key ${apiKey}`
+        'Authorization': `Klaviyo-API-Key ${apiKey}`
       },
       body: JSON.stringify({
         data: {
