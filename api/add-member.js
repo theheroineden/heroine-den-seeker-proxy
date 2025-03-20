@@ -1,95 +1,101 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const fetch = require("node-fetch");
-require("dotenv").config();
+const fetch = require('node-fetch');
 
-const app = express();
-app.use(
-  cors({
-    origin: ["https://theheroineden.com"],
-    methods: ["POST"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-app.use(bodyParser.json());
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', 'https://theheroineden.com');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-const PORT = process.env.PORT || 3000;
-const KLAVIYO_PRIVATE_API_KEY = process.env.KLAVIYO_PRIVATE_API_KEY;
-const PASSWORD_SEEKERS_LIST_ID = process.env.KLAVIYO_LIST_ID;
-const MASTER_LIST_ID = process.env.KLAVIYO_MASTER_LIST_ID;
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
-app.post("/add-member", async (req, res) => {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   const { email } = req.body;
 
-  if (!email || !email.includes("@")) {
-    return res.status(400).json({ error: "Invalid email address." });
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ error: 'Invalid email address' });
   }
 
   try {
-    // Create or update the profile and mark as subscribed
-    const profileResponse = await fetch("https://a.klaviyo.com/api/profiles/", {
-      method: "POST",
+    const apiKey = process.env.KLAVIYO_PRIVATE_API_KEY;
+    const listId = process.env.KLAVIYO_LIST_ID;
+    const masterListId = process.env.KLAVIYO_MASTER_LIST_ID;
+
+    // Step 1: Create the profile or get profile ID and mark as subscribed
+    let profileId = null;
+
+    const profileResponse = await fetch('https://a.klaviyo.com/api/profiles/', {
+      method: 'POST',
       headers: {
-        accept: "application/json",
-        revision: "2023-10-15",
-        "content-type": "application/json",
-        Authorization: `Klaviyo-API-Key ${KLAVIYO_PRIVATE_API_KEY}`,
+        'accept': 'application/json',
+        'revision': '2023-02-22',
+        'content-type': 'application/json',
+        Authorization: `Klaviyo-API-Key ${apiKey}`
       },
       body: JSON.stringify({
         data: {
-          type: "profile",
-          attributes: {
+          type: 'profile',
+          attributes: { 
             email,
             subscriptions: {
-              email: { marketing: "subscribed" },
-            },
-          },
-        },
-      }),
+              email: { marketing: 'subscribed' }
+            }
+          }
+        }
+      })
     });
 
-    if (!profileResponse.ok) {
-      const errorText = await profileResponse.text();
-      console.error("Klaviyo profile creation error:", errorText);
-      throw new Error("Failed to create or update profile in Klaviyo");
+    if (profileResponse.ok) {
+      const data = await profileResponse.json();
+      profileId = data.data.id;
+    } else {
+      const errorData = await profileResponse.json();
+      if (
+        errorData.errors &&
+        errorData.errors[0].code === 'duplicate_profile' &&
+        errorData.errors[0].meta &&
+        errorData.errors[0].meta.duplicate_profile_id
+      ) {
+        profileId = errorData.errors[0].meta.duplicate_profile_id;
+      } else {
+        throw new Error('Failed to create profile in Klaviyo');
+      }
     }
 
-    // Add the profile to both lists
-    const addToList = async (listId) => {
+    // Step 2: Add profile to Password Seekers list
+    const addToList = async (id) => {
       const listResponse = await fetch(
-        `https://a.klaviyo.com/api/lists/${listId}/relationships/profiles/`,
+        `https://a.klaviyo.com/api/lists/${id}/relationships/profiles/`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            accept: "application/json",
-            revision: "2023-10-15",
-            "content-type": "application/json",
-            Authorization: `Klaviyo-API-Key ${KLAVIYO_PRIVATE_API_KEY}`,
+            'accept': 'application/json',
+            'revision': '2023-02-22',
+            'content-type': 'application/json',
+            Authorization: `Klaviyo-API-Key ${apiKey}`
           },
           body: JSON.stringify({
-            data: [{ type: "profile", id: email }],
-          }),
+            data: [{ type: 'profile', id: profileId }]
+          })
         }
       );
 
       if (!listResponse.ok) {
-        const errorText = await listResponse.text();
-        console.error("Klaviyo Add-to-List error:", errorText);
-        throw new Error("Failed to add profile to list in Klaviyo");
+        const listError = await listResponse.text();
+        console.error(`Klaviyo Add-to-List error (List ${id}):`, listError);
+        throw new Error('Failed to add profile to list in Klaviyo');
       }
     };
 
-    await addToList(PASSWORD_SEEKERS_LIST_ID);
-    await addToList(MASTER_LIST_ID);
+    await addToList(listId); // Add to password seekers list
+    await addToList(masterListId); // Add to master list
 
-    res.json({ success: true, message: "Email added to both lists and subscribed!" });
+    res.status(200).json({ success: true, message: 'Email added, subscribed, and added to both lists!' });
   } catch (error) {
-    console.error("Klaviyo API Error:", error);
-    res.status(500).json({ error: error.message || "Server error. Please try again." });
+    console.error('Klaviyo API Error:', error);
+    res.status(500).json({ error: error.message || 'Server error. Please try again.' });
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+};
