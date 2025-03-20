@@ -14,20 +14,33 @@ module.exports = async function handler(req, res) {
   }
 
   const { email } = req.body;
-
   if (!email || !email.includes('@')) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
 
   try {
     const apiKey = process.env.KLAVIYO_PRIVATE_API_KEY;
-    // Use the legacy v2 subscribe endpoint and send API key as a query parameter.
-    const response = await fetch(`https://a.klaviyo.com/api/v2/lists/${process.env.KLAVIYO_LIST_ID}/subscribe?api_key=${apiKey}`, {
+    const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/profiles`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'accept': 'application/json',
+        'revision': '2023-02-22',
+        'content-type': 'application/json',
+        Authorization: `Klaviyo-API-Key ${apiKey}`
       },
-      body: JSON.stringify({ profiles: [{ email }] })
+      body: JSON.stringify({
+        data: {
+          type: 'profile',
+          attributes: { email },
+          relationships: {
+            lists: {
+              data: [
+                { type: 'list', id: process.env.KLAVIYO_LIST_ID }
+              ]
+            }
+          }
+        }
+      })
     });
 
     if (!response.ok) {
