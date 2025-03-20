@@ -43,7 +43,7 @@ const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/lists/${proc
     }
 
     res.status(200).json({ success: true, message: 'Email added successfully!' });
-catch (error) {
+} catch (error) {
   console.error('Klaviyo API Error:', error);
   res.status(500).json({ error: error.message || 'Server error. Please try again.' });
 }
