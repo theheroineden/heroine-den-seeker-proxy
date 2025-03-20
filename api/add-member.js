@@ -30,7 +30,6 @@ module.exports = async function handler(req, res) {
         Authorization: `Klaviyo-API-Key ${apiKey}`
       },
       body: JSON.stringify({
-{
   "data": {
     "type": "profile",
     "attributes": {
@@ -41,7 +40,7 @@ module.exports = async function handler(req, res) {
         "data": [
           {
             "type": "list",
-            "id": "QZE9kG" // Replace with your actual list ID
+            "id": "QZE9kG"
           }
         ]
       }
