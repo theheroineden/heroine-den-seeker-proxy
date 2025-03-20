@@ -30,19 +30,25 @@ module.exports = async function handler(req, res) {
         Authorization: `Klaviyo-API-Key ${apiKey}`
       },
       body: JSON.stringify({
-        data: {
-          type: 'profile',
-          attributes: { email },
-          relationships: {
-            lists: {
-              data: [
-                { type: 'list', id: process.env.KLAVIYO_LIST_ID }
-              ]
-            }
+{
+  "data": {
+    "type": "profile",
+    "attributes": {
+      "email": "user@example.com"
+    },
+    "relationships": {
+      "lists": {
+        "data": [
+          {
+            "type": "list",
+            "id": "QZE9kG" // Replace with your actual list ID
           }
-        }
-      })
-    });
+        ]
+      }
+    }
+  }
+}
+
   
     if (!response.ok) {
       const errorText = await response.text();
