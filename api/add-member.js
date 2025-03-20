@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
     const apiKey = process.env.KLAVIYO_PRIVATE_API_KEY;
     const listId = process.env.KLAVIYO_LIST_ID;
 
-    // Step 1: Create the profile
+    // Step 1: Create profile
     const createProfileResponse = await fetch('https://a.klaviyo.com/api/profiles/', {
       method: 'POST',
       headers: {
