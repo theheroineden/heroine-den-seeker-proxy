@@ -8,19 +8,20 @@ module.exports = async function handler(req, res) {
     res.status(200).end();
     return;
   }
-
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
+  
   const { email } = req.body;
+  
   if (!email || !email.includes('@')) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
-
+  
   try {
     const apiKey = process.env.KLAVIYO_PRIVATE_API_KEY;
-    const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/profiles`, {
+    const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/profiles/relationships/lists`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',
@@ -42,13 +43,13 @@ module.exports = async function handler(req, res) {
         }
       })
     });
-
+  
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Klaviyo API response error:', errorText);
       throw new Error('Failed to add email to Klaviyo');
     }
-
+  
     res.status(200).json({ success: true, message: 'Email added successfully!' });
   } catch (error) {
     console.error('Klaviyo API Error:', error);
