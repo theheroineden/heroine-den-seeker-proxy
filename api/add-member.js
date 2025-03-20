@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/profiles/`, {
+    const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/lists/QZE9kG/subscribe`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',
