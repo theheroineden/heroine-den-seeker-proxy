@@ -3,7 +3,6 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Handle preflight (OPTIONS) requests
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -20,7 +19,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/lists/${process.env.KLAVIYO_LIST_ID}/relationships/subscribers/`, {
+    const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/profiles/`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',
@@ -29,12 +28,17 @@ module.exports = async function handler(req, res) {
         Authorization: `Klaviyo-API-Key ${process.env.KLAVIYO_PRIVATE_API_KEY}`
       },
       body: JSON.stringify({ 
-        data: [
-          {
-            type: 'profile',
-            attributes: { email }
+        data: {
+          type: 'profile',
+          attributes: { email },
+          relationships: {
+            lists: {
+              data: [
+                { type: 'list', id: process.env.KLAVIYO_LIST_ID }
+              ]
+            }
           }
-        ] 
+        }
       })
     });
 
@@ -45,6 +49,7 @@ module.exports = async function handler(req, res) {
     }
 
     res.status(200).json({ success: true, message: 'Email added successfully!' });
+
   } catch (error) {
     console.error('Klaviyo API Error:', error);
     res.status(500).json({ error: error.message || 'Server error. Please try again.' });
