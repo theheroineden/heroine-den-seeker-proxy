@@ -21,15 +21,22 @@ export default async function handler(req, res) {
 
   try {
 const response = await fetch(`https://a.klaviyo.com/api/v2023-02-22/lists/${process.env.KLAVIYO_LIST_ID}/relationships/subscribers/`, {
-      method: 'POST',
-headers: {
-  'accept': 'application/json',
-  'revision': '2023-02-22',
-  'content-type': 'application/json',
-  Authorization: `Klaviyo-API-Key ${process.env.KLAVIYO_PRIVATE_API_KEY}`
-}
-      body: JSON.stringify({ profiles: [{ email }] })
-    });
+  method: 'POST',
+  headers: {
+    'accept': 'application/json',
+    'revision': '2023-02-22',
+    'content-type': 'application/json',
+    Authorization: `Klaviyo-API-Key ${process.env.KLAVIYO_PRIVATE_API_KEY}`
+  },
+  body: JSON.stringify({ 
+    data: [
+      {
+        type: 'profile',
+        attributes: { email }
+      }
+    ] 
+  })
+});
 
     if (!response.ok) {
       throw new Error('Failed to add email to Klaviyo');
