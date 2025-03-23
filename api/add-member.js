@@ -40,7 +40,7 @@ module.exports = async function handler(req, res) {
       type: 'profile',
       attributes: { 
         email,
-        consent: ["email"]
+        consent: ["EMAIL"]
       }
     }
   })
