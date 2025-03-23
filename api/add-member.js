@@ -46,8 +46,8 @@ body: JSON.stringify({
         }
       }
     }
-  }
-})
+  })
+});
 
     if (profileResponse.ok) {
       const data = await profileResponse.json();
