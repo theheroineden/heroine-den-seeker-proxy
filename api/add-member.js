@@ -43,7 +43,7 @@ module.exports = async function handler(req, res) {
             consent: ["email"]
         }
       })
-    })
+    });
 
     if (profileResponse.ok) {
       const data = await profileResponse.json();
