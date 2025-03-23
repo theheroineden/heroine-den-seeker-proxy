@@ -35,16 +35,19 @@ module.exports = async function handler(req, res) {
         'content-type': 'application/json',
         Authorization: `Klaviyo-API-Key ${apiKey}`
       },
-  body: JSON.stringify({
-    data: {
-      type: 'profile',
-      attributes: { 
-        email,
-        consent: ["EMAIL"]
+body: JSON.stringify({
+  data: {
+    type: 'profile',
+    attributes: { 
+      email,
+      subscriptions: {
+        email: {
+          consent: "explicit"
+        }
       }
     }
-  })
-});
+  }
+})
 
     if (profileResponse.ok) {
       const data = await profileResponse.json();
