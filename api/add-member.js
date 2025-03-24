@@ -15,6 +15,7 @@ module.exports = async function handler(req, res) {
 
   const { email } = req.body;
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || null;
+
   if (!email || !email.includes('@')) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
@@ -34,17 +35,18 @@ module.exports = async function handler(req, res) {
         'content-type': 'application/json',
         Authorization: `Klaviyo-API-Key ${apiKey}`
       },
-body: JSON.stringify({
-  data: {
-    type: 'profile',
-    attributes: { 
-      email,
-      location: {
-        ip: ip
-      }
-    }
-  }
-});
+      body: JSON.stringify({
+        data: {
+          type: 'profile',
+          attributes: { 
+            email,
+            location: {
+              ip: ip
+            }
+          }
+        }
+      })
+    });
 
     if (profileResponse.ok) {
       const data = await profileResponse.json();
@@ -64,20 +66,29 @@ body: JSON.stringify({
     }
 
     // STEP 1.5: Explicitly pass consent  
-await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', {
-  method: 'POST',
-  headers: {
-    accept: 'application/json',
-    revision: '2023-02-22',
-    'content-type': 'application/json',
-    Authorization: `Klaviyo-API-Key ${apiKey}`
-  },
-body: JSON.stringify({
-  data: [{
-    type: 'profile',
-    id: profileId
-  }]
-})
+    await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        revision: '2023-02-22',
+        'content-type': 'application/json',
+        Authorization: `Klaviyo-API-Key ${apiKey}`
+      },
+      body: JSON.stringify({
+        data: {
+          type: 'profile-subscription-bulk-create-job',
+          attributes: {
+            subscriptions: [
+              {
+                channel: "EMAIL",
+                email: email,
+                consent: "EXPLICIT"
+              }
+            ]
+          }
+        }
+      })
+    });
 
     // STEP 2: Add profile to Password Seekers list
     const seekersListResponse = await fetch(
@@ -90,21 +101,28 @@ body: JSON.stringify({
           'content-type': 'application/json',
           Authorization: `Klaviyo-API-Key ${apiKey}`
         },
-body: JSON.stringify({
-  data: {
-    type: 'profile',
-    attributes: { 
-      email,
-      location: {
-        ip: ip
+        body: JSON.stringify({
+          data: [{
+            type: 'profile',
+            id: profileId
+          }]
+        })
       }
-    }
-  }
-})
-});
+    );
 
     if (!seekersListResponse.ok) {
       const listError = await seekersListResponse.text();
       console.error('Klaviyo Add-to-Seekers-List error:', listError);
       throw new Error('Failed to add profile to seekers list in Klaviyo');
     }
+
+    res.status(200).json({
+      success: true,
+      message: 'Email added and added to Password Seekers list successfully!'
+    });
+
+  } catch (error) {
+    console.error('Klaviyo API Error:', error);
+    res.status(500).json({ error: error.message || 'Server error. Please try again.' });
+  }
+};
