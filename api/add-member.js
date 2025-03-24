@@ -112,7 +112,7 @@ await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', 
 
     // STEP 2: Add profile to Password Seekers list
     const seekersListResponse = await fetch(
-      `https://a.klaviyo.com/api/lists/${seekersListId}/relationships/profiles/`,
+      `https://a.klaviyo.com/api/lists/${seekersListId}/subscribe/`,
       {
         method: 'POST',
         headers: {
@@ -145,7 +145,7 @@ body: JSON.stringify({
 
     // STEP 3: Add profile to Master list
     const masterListResponse = await fetch(
-      `https://a.klaviyo.com/api/lists/${masterListId}/relationships/profiles/`,
+      `https://a.klaviyo.com/api/lists/${masterListId}/subscribe/`,
       {
         method: 'POST',
         headers: {
