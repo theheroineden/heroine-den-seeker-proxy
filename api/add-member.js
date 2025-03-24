@@ -92,7 +92,7 @@ module.exports = async function handler(req, res) {
 
     // STEP 2: Add profile to Password Seekers list
 const seekersListResponse = await fetch(
-  `https://a.klaviyo.com/api/lists/${seekersListId}/relationships/profiles/`,
+  `https://a.klaviyo.com/api/lists/${seekersListId}/subscribe/`,
   {
     method: 'POST',
     headers: {
@@ -102,10 +102,11 @@ const seekersListResponse = await fetch(
       Authorization: `Klaviyo-API-Key ${apiKey}`
     },
     body: JSON.stringify({
-      data: [
+      profiles: [
         {
-          type: 'profile',
-          id: profileId
+          email: email,
+          location: { ip: ip },
+          consent: "explicit" // <-- THIS is key for single opt-in subscribe
         }
       ]
     })
