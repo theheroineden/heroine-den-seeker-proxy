@@ -33,7 +33,7 @@ module.exports = async function handler(req, res) {
         accept: 'application/json',
         revision: '2023-02-22',
         'content-type': 'application/json',
-        Authorization: Klaviyo-API-Key ${apiKey}
+        Authorization: `Klaviyo-API-Key ${apiKey}`
       },
       body: JSON.stringify({
         data: {
@@ -72,7 +72,7 @@ module.exports = async function handler(req, res) {
         accept: 'application/json',
         revision: '2023-02-22',
         'content-type': 'application/json',
-        Authorization: Klaviyo-API-Key ${apiKey}
+        Authorization: `Klaviyo-API-Key ${apiKey}`
       },
       body: JSON.stringify({
         data: {
@@ -99,7 +99,7 @@ const seekersListResponse = await fetch(
       accept: 'application/json',
       revision: '2023-02-22',
       'content-type': 'application/json',
-      Authorization: Klaviyo-API-Key ${apiKey}
+      Authorization: `Klaviyo-API-Key ${apiKey}`
     },
     body: JSON.stringify({
       data: [
