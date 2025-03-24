@@ -33,16 +33,15 @@ module.exports = async function handler(req, res) {
         accept: 'application/json',
         revision: '2023-02-22',
         'content-type': 'application/json',
-        Authorization: `Klaviyo-API-Key ${apiKey}`
+        Authorization: Klaviyo-API-Key ${apiKey}
       },
       body: JSON.stringify({
         data: {
           type: 'profile',
           attributes: { 
             email,
-            location: {
-              ip: ip
-            }
+            location: { ip: ip },
+            accepts_marketing: true
           }
         }
       })
@@ -72,7 +71,7 @@ module.exports = async function handler(req, res) {
         accept: 'application/json',
         revision: '2023-02-22',
         'content-type': 'application/json',
-        Authorization: `Klaviyo-API-Key ${apiKey}`
+        Authorization: Klaviyo-API-Key ${apiKey}
       },
       body: JSON.stringify({
         data: {
@@ -91,26 +90,27 @@ module.exports = async function handler(req, res) {
     });
 
     // STEP 2: Add profile to Password Seekers list
-const seekersListResponse = await fetch(
-  `https://a.klaviyo.com/api/lists/${seekersListId}/relationships/profiles/`,
-  {
-    method: 'POST',
-    headers: {
-      accept: 'application/json',
-      revision: '2023-02-22',
-      'content-type': 'application/json',
-      Authorization: `Klaviyo-API-Key ${apiKey}`
-    },
-    body: JSON.stringify({
-      data: [
-        {
-          type: 'profile',
-          id: profileId
-        }
-      ]
-    })
-  }
-);
+    const seekersListResponse = await fetch(
+      https://a.klaviyo.com/api/lists/${seekersListId}/subscribe/,
+      {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          revision: '2023-02-22',
+          'content-type': 'application/json',
+          Authorization: Klaviyo-API-Key ${apiKey}
+        },
+        body: JSON.stringify({
+          profiles: [
+            {
+              email: email,
+              location: { ip: ip },
+              accepts_marketing: true
+            }
+          ]
+        })
+      }
+    );
 
     if (!seekersListResponse.ok) {
       const listError = await seekersListResponse.text();
