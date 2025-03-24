@@ -98,11 +98,21 @@ await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', 
           'content-type': 'application/json',
           Authorization: `Klaviyo-API-Key ${apiKey}`
         },
-        body: JSON.stringify({
-          data: [{ type: 'profile', id: profileId }]
-        })
-      }
-    );
+body: JSON.stringify({
+  data: [{
+    type: 'profile',
+    id: profileId,
+    attributes: {
+      subscriptions: {
+        email: {
+          consent: "explicit"
+            }
+          }
+        }
+      }]
+    })
+  }
+);
 
     if (!seekersListResponse.ok) {
       const listError = await seekersListResponse.text();
@@ -121,11 +131,21 @@ await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', 
           'content-type': 'application/json',
           Authorization: `Klaviyo-API-Key ${apiKey}`
         },
-        body: JSON.stringify({
-          data: [{ type: 'profile', id: profileId }]
-        })
-      }
-    );
+body: JSON.stringify({
+  data: [{
+    type: 'profile',
+    id: profileId,
+    attributes: {
+      subscriptions: {
+        email: {
+          consent: "explicit"
+            }
+          }
+        }
+      }]
+    })
+  }
+);
 
     if (!masterListResponse.ok) {
       const masterListError = await masterListResponse.text();
