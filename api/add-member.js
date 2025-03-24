@@ -92,7 +92,7 @@ module.exports = async function handler(req, res) {
 
     // STEP 2: Add profile to Password Seekers list
 const seekersListResponse = await fetch(
-  https://a.klaviyo.com/api/lists/${seekersListId}/relationships/profiles/,
+`https://a.klaviyo.com/api/lists/${seekersListId}/relationships/profiles/`,
   {
     method: 'POST',
     headers: {
