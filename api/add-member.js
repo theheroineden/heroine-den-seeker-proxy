@@ -91,24 +91,28 @@ module.exports = async function handler(req, res) {
     });
 
     // STEP 2: Add profile to Password Seekers list
-    const seekersListResponse = await fetch(
-      `https://a.klaviyo.com/api/lists/${seekersListId}/relationships/profiles/`,
-      {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-          revision: '2023-02-22',
-          'content-type': 'application/json',
-          Authorization: `Klaviyo-API-Key ${apiKey}`
-        },
-        body: JSON.stringify({
-          data: [{
-            type: 'profile',
-            id: profileId
-          }]
-        })
-      }
-    );
+const seekersListResponse = await fetch(
+  `https://a.klaviyo.com/api/lists/${seekersListId}/subscribe/`,
+  {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      revision: '2023-02-22',
+      'content-type': 'application/json',
+      Authorization: `Klaviyo-API-Key ${apiKey}`
+    },
+    body: JSON.stringify({
+      profiles: [
+        {
+          email: email,
+          location: {
+            ip: ip
+          }
+        }
+      ]
+    })
+  }
+);
 
     if (!seekersListResponse.ok) {
       const listError = await seekersListResponse.text();
