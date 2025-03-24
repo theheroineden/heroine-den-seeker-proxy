@@ -61,6 +61,29 @@ module.exports = async function handler(req, res) {
         throw new Error('Failed to create profile in Klaviyo');
       }
     }
+    
+    await fetch(`https://a.klaviyo.com/api/profiles/${profileId}/`, {
+  method: 'PATCH',
+  headers: {
+    accept: 'application/json',
+    revision: '2023-02-22',
+    'content-type': 'application/json',
+    Authorization: `Klaviyo-API-Key ${apiKey}`
+  },
+  body: JSON.stringify({
+    data: {
+      type: 'profile',
+      id: profileId,
+      attributes: {
+        subscriptions: {
+          email: {
+            consent: "explicit"
+          }
+        }
+      }
+    }
+  })
+});
 
     // STEP 1.5: Explicitly pass consent  
 await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', {
